@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -401,6 +401,84 @@
       gap: 22px;
       align-items: start;
     }
+    .admission-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .admission-copy,
+    .admission-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 20px;
+    }
+
+    .admission-copy p {
+      color: #4b5d75;
+      line-height: 1.65;
+      margin: 0 0 18px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #43536a;
+    }
+
+    .check-list li {
+      border-left: 4px solid var(--accent);
+      padding: 9px 0 9px 12px;
+      background: #f8fafc;
+      border-radius: 6px;
+      line-height: 1.45;
+    }
+
+    .admission-box {
+      background: #172033;
+      color: #fff;
+    }
+
+    .admission-box h4 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .admission-box p {
+      color: rgba(255,255,255,0.82);
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+
+    .admission-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .admission-actions a {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0 14px;
+      text-decoration: none;
+      font-weight: 900;
+      background: #fff;
+      color: var(--brand-dark);
+    }
+
+    .admission-actions a.secondary-link {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.28);
+    }
 
     .contact-list {
       display: grid;
@@ -467,7 +545,8 @@
       }
 
       .hero,
-      .contact {
+      .contact,
+      .admission-panel {
         grid-template-columns: 1fr;
       }
     }
@@ -574,6 +653,32 @@ Regular tests with performance tracking</textarea>
       </section>
 
       <section class="section">
+        <h2>Admission</h2>
+        <label>Prospectus title
+          <input id="prospectusTitle" value="Admission Prospectus 2026">
+        </label>
+        <label>Admission details
+          <textarea id="admissionInfo">Admissions are open for the new academic session. Students can enquire, collect the prospectus, and complete registration after counselling.</textarea>
+        </label>
+        <label>Admission steps, one per line
+          <textarea id="admissionSteps">Submit enquiry form
+Attend counselling or demo class
+Complete registration with required documents</textarea>
+        </label>
+        <label>Required documents / eligibility, one per line
+          <textarea id="eligibility">Previous class marksheet
+Student Aadhaar or ID proof
+Two passport size photographs</textarea>
+        </label>
+        <label>Online admission form link
+          <input id="admissionFormLink" value="https://forms.gle/example-admission-form">
+        </label>
+        <label>Upload prospectus PDF
+          <input id="prospectusFile" type="file" accept="application/pdf,.pdf">
+        </label>
+      </section>
+
+      <section class="section">
         <h2>Contact</h2>
         <label>Phone or WhatsApp
           <input id="phone" value="+91 98765 43210">
@@ -618,6 +723,13 @@ Regular tests with performance tracking</textarea>
       email: "admissions@example.com",
       address: "2nd Floor, Main Market Road, Near City Library",
       cta: "Ask for Admission",
+      prospectusTitle: "Admission Prospectus 2026",
+      admissionInfo: "Admissions are open for the new academic session. Students can enquire, collect the prospectus, and complete registration after counselling.",
+      admissionSteps: "Submit enquiry form\nAttend counselling or demo class\nComplete registration with required documents",
+      eligibility: "Previous class marksheet\nStudent Aadhaar or ID proof\nTwo passport size photographs",
+      admissionFormLink: "https://forms.gle/example-admission-form",
+      prospectusData: "",
+      prospectusName: "prospectus.pdf",
       logoData: "",
       heroData: ""
     };
@@ -625,7 +737,8 @@ Regular tests with performance tracking</textarea>
     const state = { ...defaults };
     const fieldIds = [
       "name", "tagline", "headline", "primaryColor", "accentColor", "courses",
-      "experience", "students", "results", "about", "features", "phone",
+      "experience", "students", "results", "about", "features", "prospectusTitle",
+      "admissionInfo", "admissionSteps", "eligibility", "admissionFormLink", "phone",
       "email", "address", "cta"
     ];
 
@@ -669,6 +782,10 @@ Regular tests with performance tracking</textarea>
 
       const phoneLink = String(data.phone || "").replace(/[^\d+]/g, "");
       const email = String(data.email || "").trim();
+      const admissionSteps = lines(data.admissionSteps).slice(0, 6).map((step) => `<li>${escapeHtml(step)}</li>`).join("");
+      const eligibilityItems = lines(data.eligibility).slice(0, 6).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+      const admissionLink = String(data.admissionFormLink || "").trim() || (phoneLink ? `tel:${phoneLink}` : "#contact");
+      const prospectusLink = data.prospectusData ? `<a class="secondary-link" href="${data.prospectusData}" download="${escapeHtml(data.prospectusName || "prospectus.pdf")}">Download Prospectus</a>` : "";
 
       return `
         ${standalone ? "" : `<style>.site{--brand:${data.primaryColor};--brand-dark:${data.primaryColor};--accent:${data.accentColor};}</style>`}
@@ -683,6 +800,7 @@ Regular tests with performance tracking</textarea>
           <nav class="site-links" aria-label="Website sections">
             <a href="#courses">Courses</a>
             <a href="#about">About</a>
+            <a href="#admission">Admission</a>
             <a href="#contact">Contact</a>
           </nav>
         </header>
@@ -692,7 +810,7 @@ Regular tests with performance tracking</textarea>
             <h2>${escapeHtml(data.headline)}</h2>
             <p>${escapeHtml(data.tagline)}</p>
             <div class="hero-actions">
-              <a class="site-cta" href="${phoneLink ? `tel:${phoneLink}` : "#contact"}">${escapeHtml(data.cta)}</a>
+              <a class="site-cta" href="#admission">${escapeHtml(data.cta)}</a>
               <a class="site-cta alt" href="#courses">View Courses</a>
             </div>
             <div class="stats">
@@ -713,6 +831,26 @@ Regular tests with performance tracking</textarea>
           <h3>About</h3>
           <p style="max-width:760px;color:#4b5d75;line-height:1.65;margin:0 0 22px;">${escapeHtml(data.about)}</p>
           <div class="cards">${featureCards}</div>
+        </section>
+
+        <section class="band" id="admission">
+          <h3>${escapeHtml(data.prospectusTitle)}</h3>
+          <div class="admission-panel">
+            <div class="admission-copy">
+              <p>${escapeHtml(data.admissionInfo)}</p>
+              <h4>Admission Steps</h4>
+              <ul class="check-list">${admissionSteps || `<li>Contact the institute for admission details.</li>`}</ul>
+            </div>
+            <div class="admission-box">
+              <h4>Prospectus & Form</h4>
+              <p>Check eligibility, required documents, batches, and admission process before submitting the form.</p>
+              <ul class="check-list">${eligibilityItems || `<li>Bring previous academic details and contact information.</li>`}</ul>
+              <div class="admission-actions" style="margin-top:18px;">
+                <a href="${escapeHtml(admissionLink)}" target="_blank" rel="noopener">Open Admission Form</a>
+                ${prospectusLink}
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="band" id="contact">
@@ -779,19 +917,25 @@ ${getSiteMarkup(data, true)}
       document.getElementById("preview").innerHTML = getSiteMarkup(state);
     }
 
-    function readImage(input, key) {
+    function readFile(input, dataKey, nameKey) {
       const file = input.files && input.files[0];
       if (!file) {
-        state[key] = "";
+        state[dataKey] = "";
+        if (nameKey) state[nameKey] = defaults[nameKey] || "";
         render();
         return;
       }
       const reader = new FileReader();
       reader.onload = () => {
-        state[key] = reader.result;
+        state[dataKey] = reader.result;
+        if (nameKey) state[nameKey] = file.name;
         render();
       };
       reader.readAsDataURL(file);
+    }
+
+    function readImage(input, key) {
+      readFile(input, key);
     }
 
     fieldIds.forEach((id) => {
@@ -800,6 +944,7 @@ ${getSiteMarkup(data, true)}
 
     document.getElementById("logoFile").addEventListener("change", (event) => readImage(event.target, "logoData"));
     document.getElementById("heroFile").addEventListener("change", (event) => readImage(event.target, "heroData"));
+    document.getElementById("prospectusFile").addEventListener("change", (event) => readFile(event.target, "prospectusData", "prospectusName"));
 
     document.getElementById("resetBtn").addEventListener("click", () => {
       Object.assign(state, defaults);
@@ -808,6 +953,7 @@ ${getSiteMarkup(data, true)}
       });
       document.getElementById("logoFile").value = "";
       document.getElementById("heroFile").value = "";
+      document.getElementById("prospectusFile").value = "";
       render();
     });
 
@@ -832,4 +978,8 @@ ${getSiteMarkup(data, true)}
   </script>
 </body>
 </html>
+
+
+
+
 
